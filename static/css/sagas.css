@@ -1,0 +1,243 @@
+/* Sagas Page - Consistent with index styling */
+
+.selection {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 1.5rem 0 2rem;
+  color: var(--text-primary);
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.selection::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(135deg, var(--accent-color), #560bad);
+  border-radius: 2px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--accent-color), #560bad);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 4px 15px rgba(114, 9, 183, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(114, 9, 183, 0.4);
+}
+
+.btn-primary i {
+  font-size: 1.1rem;
+}
+
+.saga-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.saga-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  text-decoration: none;
+  transition: var(--transition);
+  border: 2px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.saga-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent-color);
+  box-shadow: 0 12px 30px var(--shadow-color);
+}
+
+.saga-cover {
+  height: 200px;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.saga-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.saga-card:hover .saga-cover img {
+  transform: scale(1.05);
+}
+
+.saga-info {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.saga-info h3 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.3;
+  display: -webkit-box;
+  -line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.saga-author {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin: 0;
+  opacity: 0.8;
+  font-style: italic;
+  display: -webkit-box;
+  -line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.saga-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0.5rem 0;
+  flex: 1;
+  display: -webkit-box;
+  -line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.saga-books {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-secondary);
+  color: var(--accent-color);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  align-self: flex-start;
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.saga-card:hover .saga-books {
+  background: linear-gradient(135deg, rgba(114, 9, 183, 0.1), rgba(86, 11, 173, 0.1));
+  border-color: var(--accent-color);
+}
+
+/* Saga status indicators */
+.saga-complete {
+  border-top: 4px solid #4CAF50;
+}
+
+.saga-ongoing {
+  border-top: 4px solid #FF9800;
+}
+
+.saga-planned {
+  border-top: 4px solid #9C27B0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .saga-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .selection {
+    font-size: 2.25rem;
+  }
+  
+  .saga-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .saga-cover {
+    height: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .selection {
+    font-size: 2rem;
+  }
+  
+  .saga-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .saga-cover {
+    height: 160px;
+  }
+  
+  .saga-info {
+    padding: 1.25rem;
+    gap: 0.5rem;
+  }
+  
+  .saga-info h3 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .selection {
+    font-size: 1.75rem;
+  }
+  
+  .saga-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .saga-info {
+    padding: 1rem;
+  }
+  
+  .saga-info h3 {
+    font-size: 1.25rem;
+  }
+  
+  .btn-primary {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}

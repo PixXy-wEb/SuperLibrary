@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}Recommendations{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recommendations.css') }}">
+{% endblock %}
+
+{% block body %}
+<h2>You may also like</h2>
+
+<div class="recommendations">
+  {% for book in recommendations %}
+    <div class="book-card">
+      {% if book.cover_url %}
+        <img src="{{ book.cover_url }}" alt="cover">
+      {% endif %}
+      <h4>{{ book.title }}</h4>
+      <p>{{ book.author }}</p>
+    </div>
+  {% endfor %}
+</div>
+
+<a href="javascript:history.back()">← Back</a>
+{% endblock %}

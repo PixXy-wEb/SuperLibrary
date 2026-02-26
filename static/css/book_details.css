@@ -1,0 +1,563 @@
+/* Book Details Page - Consistent with index styling */
+
+.details-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.book-details-card.horizontal {
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  padding: 2.5rem;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 15px 50px var(--shadow-color);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  gap: 3rem;
+}
+
+.book-details-card.horizontal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+}
+
+/* Top Actions */
+.top-actions {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 10;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+  text-decoration: none;
+  border: 2px solid var(--border-color);
+  transition: var(--transition);
+  font-size: 0.95rem;
+}
+
+.back-link:hover {
+  background: var(--bg-tertiary);
+  transform: translateX(-5px);
+  border-color: var(--primary-color);
+}
+
+.similar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+.similar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(67, 97, 238, 0.3);
+}
+
+.btn-danger {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #f72585, #b5179e);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(247, 37, 133, 0.2);
+}
+
+.btn-danger:hover {
+  transform: scale(1.1) rotate(10deg);
+  box-shadow: 0 6px 18px rgba(247, 37, 133, 0.3);
+}
+
+/* Book Cover */
+.book-cover {
+  flex: 0 0 300px;
+  position: relative;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  align-self: flex-start;
+}
+
+.book-cover img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.book-cover:hover img {
+  transform: scale(1.03);
+}
+
+.no-cover {
+  width: 100%;
+  height: 420px;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.no-cover::before {
+  content: '📚';
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Book Info */
+.book-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.book-title {
+  font-family: var(--font-heading);
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  padding-right: 120px;
+}
+
+.book-author {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0 0 1.5rem 0;
+  font-style: italic;
+  position: relative;
+  padding-left: 2rem;
+}
+
+.book-author::before {
+  content: 'by';
+  position: absolute;
+  left: 0;
+  opacity: 0.6;
+  font-style: normal;
+}
+
+.book-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.book-meta span {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+}
+
+.book-synopsis {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-size: 1.1rem;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--primary-color);
+}
+
+/* Rating Container */
+.rating-container {
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+  border: 2px solid var(--border-color);
+}
+
+.rating-container form {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.star-rating input[type="radio"] {
+  display: none;
+}
+
+.star-rating label {
+  font-size: 2rem;
+  color: var(--border-color);
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 0 0.125rem;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+  color: #FFD700;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(67, 97, 238, 0.3);
+}
+
+.rating-text {
+  margin: 1rem 0 0 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rating-text::before {
+  content: '⭐';
+  font-size: 1.5rem;
+}
+
+/* PDF Actions */
+.book-actions {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--transition);
+  border: 2px solid transparent;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #4cc9f0, #4895ef);
+  color: white;
+  box-shadow: 0 4px 12px rgba(76, 201, 240, 0.2);
+}
+
+.btn-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(76, 201, 240, 0.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.3);
+}
+
+.btn i {
+  font-size: 1.1rem;
+}
+
+#pdfStatus {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.alert {
+  padding: 1rem 1.25rem;
+  border-radius: var(--border-radius);
+  margin: 0.5rem 0;
+  border-left: 4px solid transparent;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-info {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(21, 101, 192, 0.1));
+  border-color: #2196F3;
+  color: #1565C0;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(46, 125, 50, 0.1));
+  border-color: #4CAF50;
+  color: #2E7D32;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(239, 108, 0, 0.1));
+  border-color: #FF9800;
+  color: #EF6C00;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(198, 40, 40, 0.1));
+  border-color: #f44336;
+  color: #c62828;
+}
+
+/* Book Status Indicators */
+.book-status {
+  display: flex;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 2px solid var(--border-color);
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.status-item i {
+  font-size: 1.25rem;
+}
+
+.status-pdf i {
+  color: #f72585;
+}
+
+.status-epub i {
+  color: #4cc9f0;
+}
+
+.status-read i {
+  color: #4CAF50;
+}
+
+/* Responsive Design */
+@media (max-width: 1100px) {
+  .book-details-card.horizontal {
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  
+  .book-cover {
+    flex: none;
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+  }
+  
+  .book-cover img,
+  .no-cover {
+    height: 450px;
+  }
+  
+  .book-title {
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .details-container {
+    margin: 1.5rem auto;
+    padding: 0 0.75rem;
+  }
+  
+  .book-details-card.horizontal {
+    padding: 2rem;
+  }
+  
+  .top-actions {
+    top: 1rem;
+    right: 1rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+  
+  .book-title {
+    font-size: 2.25rem;
+    margin-top: 2.5rem;
+  }
+  
+  .book-author {
+    font-size: 1.3rem;
+  }
+  
+  .book-meta {
+    gap: 1rem;
+  }
+  
+  .book-synopsis {
+    font-size: 1rem;
+    padding: 1.25rem;
+  }
+  
+  .book-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .details-container {
+    margin: 1rem auto;
+    padding: 0 0.5rem;
+  }
+  
+  .book-details-card.horizontal {
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+  }
+  
+  .book-title {
+    font-size: 1.875rem;
+  }
+  
+  .book-author {
+    font-size: 1.1rem;
+    padding-left: 1.5rem;
+  }
+  
+  .book-cover {
+    max-width: 280px;
+  }
+  
+  .book-cover img,
+  .no-cover {
+    height: 380px;
+  }
+  
+  .star-rating label {
+    font-size: 1.75rem;
+  }
+  
+  .book-meta {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .rating-container form {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .btn-primary {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Loading animation for PDF search */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pdf-searching .alert-info {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Success animation */
+@keyframes success {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pdf-success .alert-success {
+  animation: success 0.5s ease-in-out;
+}

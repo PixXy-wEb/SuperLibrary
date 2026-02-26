@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Book{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_book.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="add-container">
+
+  <div class="add-book-card">
+    <h2 class="selection">Add a New Book</h2>
+
+    <form method="POST" action="{{ url_for('add_book') }}">
+
+      <div class="form-group">
+        <label for="title">Book title</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="Enter book title"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="author">Author</label>
+        <input
+          type="text"
+          id="author"
+          name="author"
+          placeholder="Enter author name"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn-primary">Add Book</button>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

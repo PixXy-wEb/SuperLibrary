@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        select, input[type="file"] { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        .btn { 
+            padding: 12px 24px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 16px;
+        }
+        .btn:hover { background-color: #45a049; }
+        .btn:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .progress { margin-top: 20px; }
+        .progress-bar { 
+            width: 100%; 
+            height: 20px; 
+            background-color: #f5f5f5; 
+            border-radius: 4px; 
+            overflow: hidden;
+        }
+        .progress-fill { 
+            height: 100%; 
+            background-color: #4CAF50; 
+            width: 0%; 
+            transition: width 0.3s;
+        }
+        .result { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .book-info { 
+            background-color: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📤 Upload PDF for Book</h1>
+        
+        <div class="book-info">
+            <h3>Select a book to upload PDF for:</h3>
+            <select id="bookSelect" onchange="updateBookInfo()">
+                <option value="">-- Select a Book --</option>
+                {% for book in books %}
+                <option value="{{ book['id'] }}" 
+                        data-title="{{ book['title'] }}" 
+                        data-author="{{ book['author'] }}">
+                    {{ book['title'] }} by {{ book['author'] }}
+                </option>
+                {% endfor %}
+            </select>
+            
+            <div id="selectedBookInfo" style="display: none; margin-top: 15px;">
+                <strong>Selected Book:</strong>
+                <div id="bookTitle"></div>
+                <div id="bookAuthor"></div>
+            </div>
+        </div>
+        
+        <form id="uploadForm" style="display: none;">
+            <div class="form-group">
+                <label for="pdfFile">PDF File *</label>
+                <input type="file" id="pdfFile" name="pdf_file" accept=".pdf" required>
+                <small>Maximum file size: 100MB. File must be a PDF.</small>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">Upload PDF</button>
+        </form>
+        
+        <div class="progress" id="progressSection" style="display: none;">
+            <p>Uploading PDF...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">0%</p>
+        </div>
+        
+        <div class="result" id="resultSection" style="display: none;"></div>
+        
+        <div style="margin-top: 30px;">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Select a book from the dropdown</li>
+                <li>Choose a PDF file from your computer</li>
+                <li>Click "Upload PDF"</li>
+                <li>The PDF will be attached to the book</li>
+                <li>You can then convert it to EPUB if desired</li>
+            </ol>
+            <p><a href="/find-pdfs">← Back to PDF Finder</a></p>
+        </div>
+    </div>
+    
+    <script>
+        function updateBookInfo() {
+            const select = document.getElementById('bookSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            const form = document.getElementById('uploadForm');
+            const infoDiv = document.getElementById('selectedBookInfo');
+            
+            if (selectedOption.value) {
+                const title = selectedOption.getAttribute('data-title');
+                const author = selectedOption.getAttribute('data-author');
+                
+                document.getElementById('bookTitle').textContent = 'Title: ' + title;
+                document.getElementById('bookAuthor').textContent = 'Author: ' + author;
+                
+                infoDiv.style.display = 'block';
+                form.style.display = 'block';
+            } else {
+                infoDiv.style.display = 'none';
+                form.style.display = 'none';
+            }
+        }
+        
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const bookId = document.getElementById('bookSelect').value;
+            const fileInput = document.getElementById('pdfFile');
+            const file = fileInput.files[0];
+            
+            if (!bookId) {
+                alert('Please select a book first');
+                return;
+            }
+            
+            if (!file) {
+                alert('Please select a PDF file');
+                return;
+            }
+            
+            if (file.size > 100 * 1024 * 1024) { // 100MB
+                alert('File size must be less than 100MB');
+                return;
+            }
+            
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                alert('File must be a PDF (.pdf)');
+                return;
+            }
+            
+            // Show progress
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            
+            const formData = new FormData();
+            formData.append('pdf_file', file);
+            
+            const xhr = new XMLHttpRequest();
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    document.getElementById('progressFill').style.width = percentComplete + '%';
+                    document.getElementById('progressText').textContent = Math.round(percentComplete) + '%';
+                }
+            });
+            
+            xhr.addEventListener('load', function() {
+                document.getElementById('progressSection').style.display = 'none';
+                
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    const resultDiv = document.getElementById('resultSection');
+                    resultDiv.style.display = 'block';
+                    
+                    if (response.status === 'success') {
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = 
+                            '<h3>✅ PDF Upload Successful!</h3>' +
+                            '<p>' + response.message + '</p>' +
+                            '<p>File Size: ' + response.pdf.size_mb + ' MB</p>' +
+                            '<div style="margin-top: 15px;">' +
+                            '<a href="' + response.download_url + '" class="btn" style="text-decoration: none;">Download PDF</a>' +
+                            '<a href="' + response.convert_url + '" class="btn" style="text-decoration: none; background-color: #2196F3; margin-left: 10px;">Convert to EPUB</a>' +
+                            '<a href="/find-pdfs" class="btn" style="text-decoration: none; background-color: #6c757d; margin-left: 10px;">Back to Finder</a>' +
+                            '</div>';
+                    } else {
+                        resultDiv.className = 'result error';
+                        resultDiv.innerHTML = 
+                            '<h3>❌ Upload Failed</h3>' +
+                            '<p>' + response.message + '</p>';
+                    }
+                } catch (error) {
+                    const resultDiv = document.getElementById('resultSection');
+                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = 
+                        '<h3>❌ Error</h3>' +
+                        '<p>Failed to parse server response</p>';
+                }
+                
+                document.getElementById('submitBtn').disabled = false;
+            });
+            
+            xhr.addEventListener('error', function() {
+                document.getElementById('progressSection').style.display = 'none';
+                
+                const resultDiv = document.getElementById('resultSection');
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = 
+                    '<h3>❌ Upload Failed</h3>' +
+                    '<p>Network error. Please try again.</p>';
+                
+                document.getElementById('submitBtn').disabled = false;
+            });
+            
+            xhr.open('POST', '/api/books/' + bookId + '/upload-pdf-manual');
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block title %}Books{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/books.css') }}">
+{% endblock %}
+
+{% block body %}
+<h2 class="selection">Library</h2>
+
+<a href="{{ url_for('add_book', book_id=book_id) }}"
+   class="btn-primary">
+   + Add book
+</a>
+
+<div class="books-grid">
+  {% for book in books %}
+    <a href="{{ url_for('book_details', book_id=book.id) }}" class="book-card">
+      
+      <div class="book-cover">
+        {% if book.cover_url %}
+          <img src="{{ book.cover_url }}" alt="{{ book.title }}">
+        {% else %}
+          <div class="no-cover">No Cover</div>
+        {% endif %}
+      </div>
+
+      <div class="book-info">
+        <h3>{{ book.title }}</h3>
+        <p>{{ book.author }}</p>
+      </div>
+
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

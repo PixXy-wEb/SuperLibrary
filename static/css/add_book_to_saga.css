@@ -1,0 +1,126 @@
+@font-face {
+    font-family: Kaisei Tokumin;
+    src: url(C:\Windows\Fonts\KaiseiTokumin-Regular.ttf);
+}
+
+body {
+    font-family: 'Kaisei Tokumin', serif;
+}
+
+.add-container {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.add-book-card {
+  max-width: 460px;
+  width: 100%;
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.add-book-card h2 {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  margin-right: 40px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  transition: border 0.2s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #61ADFF;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: #61ADFF;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #4b97e6;
+  transform: translateY(-2px);
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #333;
+}
+
+.search-form {
+  display: flex;
+  gap: 6px;
+}
+
+.search-form input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.search-form button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #61ADFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover {
+  color: #61ADFF;
+}
+
+.site-header {
+  background: #f8f9fb;
+  border-bottom: 1px solid #ddd;
+}

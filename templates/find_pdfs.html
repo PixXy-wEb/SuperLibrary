@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Find PDFs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; }
+        .controls { margin-bottom: 20px; }
+        .btn { 
+            padding: 10px 20px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .btn:hover { background-color: #45a049; }
+        .btn-search { background-color: #2196F3; }
+        .btn-search:hover { background-color: #0b7dda; }
+        .btn-batch { background-color: #FF9800; }
+        .btn-batch:hover { background-color: #e68900; }
+        .book-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .book-card { 
+            border: 1px solid #ddd; 
+            padding: 20px; 
+            border-radius: 5px;
+            background: white;
+        }
+        .book-title { 
+            font-weight: bold; 
+            font-size: 1.1em; 
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .book-author { 
+            color: #666; 
+            margin-bottom: 10px;
+        }
+        .book-status { 
+            margin: 10px 0; 
+            padding: 5px 10px; 
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .has-pdf { background-color: #d4edda; color: #155724; }
+        .no-pdf { background-color: #f8d7da; color: #721c24; }
+        .book-actions { margin-top: 15px; }
+        .btn-action { 
+            padding: 6px 12px; 
+            margin-right: 5px; 
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .btn-find { background-color: #2196F3; }
+        .btn-download { background-color: #4CAF50; }
+        .btn-delete { background-color: #f44336; }
+        .btn-convert { background-color: #9C27B0; }
+        .result { 
+            margin-top: 10px; 
+            padding: 10px; 
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #fff3cd; color: #856404; }
+        .stats { 
+            background-color: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Find PDFs for Books</h1>
+        
+        <div class="stats">
+            <h3>Statistics</h3>
+            <div id="stats-content">
+                Total Books: {{ books|length }}<br>
+                Books with PDFs: <span id="with-pdf-count">0</span><br>
+                Books without PDFs: <span id="without-pdf-count">0</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-batch" onclick="batchFindAll()">Find PDFs for All Books</button>
+            <a href="/upload-pdf" class="btn">Upload PDF Manually</a>
+            <a href="/" class="btn" style="background-color: #666;">Back to Main</a>
+        </div>
+        
+        <div id="batch-result" class="result" style="display: none;"></div>
+        
+        <div class="book-list">
+            {% for book in books %}
+            <div class="book-card" id="book-{{ book.id }}">
+                <div class="book-title">{{ book.title }}</div>
+                <div class="book-author">by {{ book.author }}</div>
+                
+                <div class="book-status {% if book.has_pdf %}has-pdf{% else %}no-pdf{% endif %}">
+                    {% if book.has_pdf %}
+                        ✅ Has PDF ({{ book.pdf_path }})
+                    {% else %}
+                        ❌ No PDF
+                    {% endif %}
+                </div>
+                
+                <div class="book-actions">
+                    {% if not book.has_pdf %}
+                        <button class="btn btn-action btn-find" onclick="findPdf( book_id )">
+                            🔍 Find PDF
+                        </button>
+                    {% endif %}
+                    
+                    {% if book.has_pdf %}
+                        <a href="/api/books/{{ book.id }}/download-existing-pdf" class="btn btn-action btn-download">
+                            📥 Download PDF
+                        </a>
+                        <button class="btn btn-action btn-convert" onclick="convertToEpub( book_id )">
+                            📚 Convert to EPUB
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="deletePdf( book_id )">
+                            🗑️ Delete PDF
+                        </button>
+                    {% endif %}
+                    
+                    <a href="/api/books/{{ book.id }}/pdf-info" class="btn btn-action" target="_blank" style="background-color: #6c757d;">
+                        ℹ️ Info
+                    </a>
+                </div>
+                
+                <div id="result-{{ book.id }}" class="result" style="display: none;"></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <script>
+        // Calculate stats on page load
+        function calculateStats() {
+            const books = document.querySelectorAll('.book-card');
+            let withPdf = 0;
+            let withoutPdf = 0;
+            
+            books.forEach(book => {
+                if (book.querySelector('.has-pdf')) {
+                    withPdf++;
+                } else {
+                    withoutPdf++;
+                }
+            });
+            
+            document.getElementById('with-pdf-count').textContent = withPdf;
+            document.getElementById('without-pdf-count').textContent = withoutPdf;
+        }
+        
+        async function findPdf(bookId) {
+            const resultDiv = document.getElementById('result-' + bookId);
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '🔍 Searching for PDF...';
+            
+            try {
+                const response = await fetch('/api/books/' + bookId + '/search-pdf', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ PDF found! ';
+                    
+                    // Add download button
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'btn btn-action btn-download';
+                    downloadBtn.style.marginLeft = '10px';
+                    downloadBtn.innerHTML = '📥 Download & Save';
+                    downloadBtn.onclick = () => downloadFoundPdf(bookId, data.pdf_url);
+                    resultDiv.appendChild(downloadBtn);
+                    
+                    // Add direct download link
+                    const directLink = document.createElement('a');
+                    directLink.href = data.direct_download;
+                    directLink.className = 'btn btn-action';
+                    directLink.style.marginLeft = '5px';
+                    directLink.style.background = '#6c757d';
+                    directLink.innerHTML = '⚡ Direct Download';
+                    directLink.target = '_blank';
+                    resultDiv.appendChild(directLink);
+                    
+                } else if (data.status === 'not_found') {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ ' + data.message;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ Error: ' + data.message;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Network error: ' + error.message;
+            }
+        }
+        
+        async function downloadFoundPdf(bookId, pdfUrl) {
+            const resultDiv = document.getElementById('result-' + bookId);
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '📥 Downloading PDF...';
+            
+            try {
+                const response = await fetch('/api/books/' + bookId + '/download-found-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pdf_url: pdfUrl })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ ' + data.message;
+                    
+                    // Update UI
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ ' + data.message;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Download error: ' + error.message;
+            }
+        }
+        
+        async function autoFindPdf(bookId) {
+            const resultDiv = document.getElementById('result-' + bookId);
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '🚀 Auto-finding PDF...';
+            
+            try {
+                const response = await fetch('/api/books/' + bookId + '/auto-find-pdf', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ ' + data.message;
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else if (data.status === 'already_exists') {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ ' + data.message;
+                } else if (data.status === 'not_found') {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ ' + data.message;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ ' + data.message;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Error: ' + error.message;
+            }
+        }
+        
+        async function deletePdf(bookId) {
+            if (!confirm('Are you sure you want to delete this PDF file?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/books/' + bookId + '/delete-pdf', {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    alert('PDF deleted successfully');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function convertToEpub(bookId) {
+            if (confirm('Convert this PDF to EPUB?')) {
+                window.location.href = '/api/books/' + bookId + '/convert-to-epub';
+            }
+        }
+        
+        async function batchFindAll() {
+            const resultDiv = document.getElementById('batch-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = '🔍 Searching for PDFs for all books... This may take a while.';
+            
+            try {
+                const response = await fetch('/api/books/batch-find-pdfs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ ' + data.message;
+                    
+                    // Show detailed results
+                    if (data.results && data.results.length > 0) {
+                        const details = document.createElement('div');
+                        details.style.marginTop = '10px';
+                        details.innerHTML = '<h4>Results:</h4>';
+                        
+                        data.results.forEach(result => {
+                            const p = document.createElement('p');
+                            p.style.margin = '5px 0';
+                            p.style.fontSize = '0.9em';
+                            
+                            if (result.status === 'found') {
+                                p.innerHTML = `✅ <strong>${result.title}</strong>: PDF found`;
+                                p.style.color = '#155724';
+                                
+                                // Add download button
+                                const btn = document.createElement('button');
+                                btn.className = 'btn btn-action btn-download';
+                                btn.style.marginLeft = '10px';
+                                btn.style.padding = '3px 8px';
+                                btn.style.fontSize = '0.8em';
+                                btn.innerHTML = '📥 Download';
+                                btn.onclick = () => downloadFoundPdf(result.book_id, result.pdf_url);
+                                p.appendChild(btn);
+                            } else if (result.status === 'not_found') {
+                                p.innerHTML = `❌ <strong>${result.title}</strong>: No PDF found`;
+                                p.style.color = '#721c24';
+                            } else if (result.status === 'skipped') {
+                                p.innerHTML = `⏭️ <strong>${result.title}</strong>: Already has PDF`;
+                                p.style.color = '#856404';
+                            } else {
+                                p.innerHTML = `⚠️ <strong>${result.title || 'Book ' + result.book_id}</strong>: Error`;
+                                p.style.color = '#721c24';
+                            }
+                            
+                            details.appendChild(p);
+                        });
+                        
+                        resultDiv.appendChild(details);
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ ' + data.message;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Batch search error: ' + error.message;
+            }
+        }
+        
+        // Initialize
+        calculateStats();
+    </script>
+</body>
+</html>

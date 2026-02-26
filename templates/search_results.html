@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block body %}
+<h2 class="selection">
+  Results for "{{ query }}"
+</h2>
+
+{% if books %}
+  <ul class="book-list">
+    {% for book in books %}
+      <li class="book-item">
+        <a href="{{ url_for('book_details_by_id', book_id=book[0]) }}">
+          <span class="book-title">{{ book[1] }}</span>
+          <span class="book-author">by {{ book[2] }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p style="text-align:center;">No results found.</p>
+{% endif %}
+{% endblock %}

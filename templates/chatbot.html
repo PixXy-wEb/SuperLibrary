@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}BookBot{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    <a href="/" class="home-button">
+        <i class="fas fa-arrow-left"></i> Back to Library
+    </a>
+    
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <i class="fas fa-robot"></i>
+            <div>
+                <h1>BookBot</h1>
+                <p>Your personal library assistant</p>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be inserted here -->
+            <div class="message bot-message">
+                Hello! I'm BookBot, your personal library assistant. 🤖<br><br>
+                I can help you:
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>📚 Find book recommendations</li>
+                    <li>🔍 Search for specific books</li>
+                    <li>⭐ Check book ratings</li>
+                    <li>👨‍💻 Discover new authors</li>
+                    <li>📖 Read book summaries</li>
+                </ul>
+                <br>What would you like to do today?
+            </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <div class="input-group">
+                <input type="text" class="chat-input" id="messageInput" 
+                       placeholder="Ask about books, genres, recommendations..." 
+                       onkeypress="handleKeyPress(event)">
+                <button class="send-button" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    {% endblock %}
+
+{% endblock %}

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SuperLibrary{% endblock %}</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kaisei+Tokumin:wght@400;500;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  
+  {% block css %}{% endblock %}
+</head>
+<body class="light-mode">
+  
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="header-left">
+        <a href="{{ url_for('home') }}" class="logo">
+          <i class="fas fa-book-open logo-icon"></i>
+          <span class="logo-text">SuperLibrary</span>
+        </a>
+        <p class="tagline">Your Digital Book Haven</p>
+      </div>
+
+      <nav class="nav-links">
+        <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="{{ url_for('books') }}" class="nav-link {% if request.endpoint == 'books' %}active{% endif %}">
+          <i class="fas fa-book"></i>
+          <span>Books</span>
+        </a>
+        <a href="{{ url_for('view_sagas') }}" class="nav-link {% if request.endpoint == 'view_sagas' %}active{% endif %}">
+          <i class="fas fa-layer-group"></i>
+          <span>Sagas</span>
+        </a>
+        <a href="/chatbot" class="nav-link chatbot-btn">
+          <i class="fas fa-robot"></i>
+          <span>BookBot AI</span>
+        </a>
+      </nav>
+
+      <div class="header-right">
+        <form class="search-form" method="GET" action="{{ url_for('search_books') }}">
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" placeholder="Search books, authors..." class="search-input" />
+            <button type="submit" class="search-btn">Search</button>
+          </div>
+        </form>
+        
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+          <span class="theme-text">Dark Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">
+              <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    
+    {% block body %}
+    <!-- This block will be replaced by child templates -->
+    {% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h3>
+          <i class="fas fa-book-open logo-icon"></i>
+          SuperLibrary
+        </h3>
+        <p>Your personal digital library with powerful book management tools.</p>
+        <div class="footer-links">
+          <a href="{{ url_for('home') }}">Home</a>
+          <a href="{{ url_for('books') }}">Books</a>
+          <a href="{{ url_for('view_sagas') }}">Sagas</a>
+          <a href="/chatbot">BookBot</a>
+        </div>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Tools</h3>
+        <div class="footer-links">
+          <a href="/find-pdfs">PDF Finder</a>
+          <a href="/convert-epub">EPUB Converter</a>
+          <a href="/upload-pdf">PDF Upload</a>
+          <a href="/epub-library">EPUB Library</a>
+        </div>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Help & Support</h3>
+        <div class="footer-links">
+          <a href="/chatbot">Ask BookBot</a>
+          <a href="#" onclick="showHelp()">Quick Guide</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2025 SuperLibrary. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript Files -->
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  
+  {% block scripts %}{% endblock %}
+  
+  <!-- Global JavaScript -->
+  <script>
+    // Simple notification function
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `global-notification ${type}`;
+      notification.innerHTML = `
+        <div class="notification-content">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+          ${message}
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+    
+    // Help function
+    function showHelp() {
+      showNotification('📚 Check the navigation menu for all available tools!', 'info');
+    }
+  </script>
+  
+  <!-- Global Notification CSS -->
+  <style>
+    .global-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      max-width: 400px;
+      z-index: 2001;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      animation: slideIn 0.3s ease;
+    }
+    
+    .global-notification.success {
+      background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+    }
+    
+    .global-notification.error {
+      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    }
+    
+    .global-notification.info {
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    }
+    
+    .notification-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .notification-close {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 5px;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</body>
+</html>

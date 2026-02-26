@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block title %}Sagas{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sagas.css') }}">
+{% endblock %}
+
+{% block body %}
+
+<h2 class="selection">Sagas</h2>
+
+<a href="{{ url_for('add_saga', sagas_id=sagas[0]) }}"
+   class="btn-primary">
+   + Add saga
+</a>
+
+<div class="saga-grid">
+  {% for saga in sagas %}
+    <a href="{{ url_for('saga_details', saga_id=saga[0]) }}" class="saga-card">
+
+      <div class="saga-cover">
+        {% if saga[3] %}
+          <img src="{{ saga[3] }}" alt="{{ saga[1] }}">
+        {% else %}
+          <div class="no-cover">No Cover</div>
+        {% endif %}
+      </div>
+
+      <div class="saga-info">
+        <h3>{{ saga[1] }}</h3>
+        <p class="saga-author">by {{ saga[2] }}</p>
+
+        <p class="saga-description">
+          {{ saga[4][:120] ~ "..." if saga[4] and saga[4]|length > 120 else saga[4] }}
+        </p>
+
+        <span class="saga-books">
+          📚 {{ saga[6] }} book{{ 's' if saga[6] != 1 }}
+        </span>
+      </div>
+
+    </a>
+  {% endfor %}
+</div>
+
+{% endblock %}

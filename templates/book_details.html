@@ -1,0 +1,211 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ book[1] }}{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/book_details.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="details-container">
+
+  <div class="book-details-card horizontal">
+
+    <!-- Top Actions -->
+    <div class="top-actions">
+      <a class="back-link" href="{{ url_for('books') }}">
+        <i class="fas fa-arrow-left"></i> Back to Library
+      </a>
+
+      <a href="{{ url_for('book_recommendations', book_id=book[0]) }}" class="similar-btn">
+        <i class="fas fa-search"></i> Similar Books
+      </a>
+
+      <form action="{{ url_for('delete', book_id=book[0]) }}" method="POST" 
+            onsubmit="return confirm('Are you sure you want to delete this book?');"
+            style="display: inline;">
+        <button type="submit" class="btn-danger" title="Delete Book">
+          <i class="fas fa-trash"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Left: Cover -->
+    <div class="book-cover">
+      {% if book[6] %}
+        <img src="{{ book[6] }}" alt="{{ book[1] }}">
+      {% else %}
+        <div class="no-cover">
+          <span class="cover-icon">📚</span>
+          <span class="cover-text">No Cover Available</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Right: Info -->
+    <div class="book-info">
+      <h1 class="book-title">{{ book[1] }}</h1>
+      <h3 class="book-author">{{ book[2] }}</h3>
+
+      <!-- Book Metadata -->
+      <div class="book-meta">
+        {% if book[3] %}
+        <span class="meta-item">
+          <i class="fas fa-barcode"></i> ISBN: {{ book[3] }}
+        </span>
+        {% endif %}
+        {% if book[4] %}
+        <span class="meta-item">
+          <i class="fas fa-calendar"></i> {{ book[4] }}
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- Synopsis -->
+      {% if book[5] %}
+      <div class="book-synopsis">
+        <h4><i class="fas fa-book-open"></i> Synopsis</h4>
+        <p>{{ book[5] }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Book Status -->
+      <div class="book-status">
+        <div class="status-item status-pdf">
+          <i class="fas fa-file-pdf"></i>
+          <span>PDF: {% if book.pdf_path %}Available{% else %}Not Available{% endif %}</span>
+        </div>
+        <div class="status-item status-epub">
+          <i class="fas fa-tablet-alt"></i>
+          <span>EPUB: {% if book.has_epub %}Available{% else %}Not Available{% endif %}</span>
+        </div>
+      </div>
+
+      <!-- PDF Actions -->
+      <div class="book-actions">
+        <a href="{{ url_for('search_pdf_page') }}?title={{ book[1]|urlencode }}&author={{ book[2]|urlencode }}" 
+           class="btn btn-info">
+          <i class="fas fa-search"></i> Search PDF Online
+        </a>
+        
+        <button onclick="tryDownloadPDF( book_id )" class="btn btn-success">
+          <i class="fas fa-download"></i> Download PDF
+        </button>
+        
+        <a href="{{ url_for('convert_epub_page') }}" class="btn" style="background: linear-gradient(135deg, #7209b7, #560bad); color: white;">
+          <i class="fas fa-sync-alt"></i> Convert to EPUB
+        </a>
+      </div>
+
+      <div id="pdfStatus" style="display: none;"></div>
+
+      <!-- Rating -->
+      <div class="rating-container">
+        <h4><i class="fas fa-star"></i> Rate This Book</h4>
+        <form method="POST" action="{{ url_for('rate_book', book_id=book[0]) }}">
+          <div class="star-rating">
+            {% for i in range(5, 0, -1) %}
+              <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}"
+                {% if book[10] and book[10] >= i %}checked{% endif %}>
+              <label for="star{{ i }}" title="{{ i }} star{{ 's' if i != 1 }}">★</label>
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-star"></i> Submit Rating
+          </button>
+        </form>
+
+        {% if book[10] %}
+        <p class="rating-text">
+          <i class="fas fa-star"></i> Current Rating: {{ book[10] }}/5
+        </p>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for PDF Download -->
+<script>
+function tryDownloadPDF(bookId) {
+    const statusDiv = document.getElementById('pdfStatus');
+    const bookActions = document.querySelector('.book-actions');
+    
+    statusDiv.style.display = 'block';
+    statusDiv.className = 'pdf-searching';
+    statusDiv.innerHTML = `
+        <div class="alert alert-info">
+            <i class="fas fa-search"></i> Searching for PDF...
+        </div>
+    `;
+    
+    bookActions.style.opacity = '0.7';
+    bookActions.style.pointerEvents = 'none';
+    
+    fetch(`/api/books/${bookId}/pdf-download`)
+        .then(response => {
+            bookActions.style.opacity = '1';
+            bookActions.style.pointerEvents = 'auto';
+            
+            if (response.ok && response.headers.get('content-type')?.includes('pdf')) {
+                // It's a PDF file, trigger download
+                return response.blob().then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `{{ book[1]|safe }}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    statusDiv.className = 'pdf-success';
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> PDF downloaded successfully!
+                        </div>
+                    `;
+                    
+                    // Hide success message after 3 seconds
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                });
+            } else if (response.status === 404) {
+                return response.json().then(data => {
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> ${data.message}
+                        </div>
+                    `;
+                    
+                    // Redirect to search page after 1.5 seconds
+                    setTimeout(() => {
+                        const bookTitle = "{{ book[1]|safe }}";
+                        const bookAuthor = "{{ book[2]|safe }}";
+                        window.location.href = `/search-pdf?title=${encodeURIComponent(bookTitle)}&author=${encodeURIComponent(bookAuthor)}`;
+                    }, 1500);
+                });
+            } else {
+                return response.json().then(data => {
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-times-circle"></i> ${data.message || 'Download failed'}
+                        </div>
+                    `;
+                });
+            }
+        })
+        .catch(error => {
+            bookActions.style.opacity = '1';
+            bookActions.style.pointerEvents = 'auto';
+            statusDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-times-circle"></i> Error: ${error.message}
+                </div>
+            `;
+        });
+}
+</script>
+{% endblock %}

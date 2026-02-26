@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ saga[1] }}{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/saga_detail.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="saga-header">
+
+  <div class="saga-cover">
+    {% if saga[4] %}
+      <img src="{{ saga[4] }}" alt="{{ saga[1] }}">
+    {% else %}
+      <div class="no-cover">No Cover</div>
+    {% endif %}
+  </div>
+
+  <div class="saga-meta">
+    <h1 class="saga-title">{{ saga[1] }}</h1>
+    <h3 class="saga-author">by {{ saga[2] }}</h3>
+
+    <p class="saga-description">
+      {{ saga[3] if saga[3] else "No description available." }}
+    </p>
+
+    <div class="saga-stats">
+      <span>📚 {{ saga[6] }} book{{ 's' if saga[6] != 1 }}</span>
+    </div>
+  </div>
+
+</div>
+
+<a href="{{ url_for('add_book_to_saga', saga_id=saga[0]) }}"
+   class="btn-primary">
+   + Add book to this saga
+</a>
+
+<div class="books-grid">
+  {% for book in books %}
+    <a href="{{ url_for('book_details', book_id=book[0]) }}" class="book-card">
+
+      <div class="book-cover">
+        {% if book[3] %}
+          <img src="{{ book[3] }}" alt="{{ book[1] }}">
+        {% else %}
+          <div class="no-cover">No Cover</div>
+        {% endif %}
+      </div>
+
+      <div class="book-info">
+        <h3>{{ book[1] }}</h3>
+        <p>{{ book[2] }}</p>
+      </div>
+
+    </a>
+  {% else %}
+    <p>No books in this saga yet.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

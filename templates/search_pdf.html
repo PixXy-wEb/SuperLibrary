@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Book PDFs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-top: 50px;
+        }
+        .pdf-result {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f8f9fa;
+        }
+        .btn-pdf {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+        }
+        .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">
+            <i class="fas fa-file-pdf text-danger"></i> Search Book PDFs
+        </h1>
+        
+        <div class="mb-4">
+            <a href="/" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to Library
+            </a>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Search for Book PDF</h5>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Book Title</label>
+                    <input type="text" class="form-control" id="title" placeholder="Enter book title">
+                </div>
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" class="form-control" id="author" placeholder="Enter author name">
+                </div>
+                <button onclick="searchPDF()" class="btn btn-pdf w-100">
+                    <i class="fas fa-search"></i> Search & Download PDF
+                </button>
+            </div>
+        </div>
+        
+        <div id="result" class="d-none">
+            <div class="pdf-result">
+                <h4 id="resultTitle"></h4>
+                <p id="resultMessage" class="mb-3"></p>
+                <div id="pdfLinks"></div>
+                <div class="mt-3">
+                    <div class="progress">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div id="progressText" class="text-center mt-2"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mt-4">
+            <h6><i class="fas fa-info-circle"></i> How it works:</h6>
+            <ul class="mb-0">
+                <li>Searches for publicly available PDF versions of books</li>
+                <li>Downloads the PDF file to your device</li>
+                <li>Works best with classic literature and academic books</li>
+                <li>Modern books may not have free PDFs available</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function searchPDF() {
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const resultDiv = document.getElementById('result');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+            const pdfLinks = document.getElementById('pdfLinks');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (!title || !author) {
+                alert('Please enter both title and author');
+                return;
+            }
+            
+            // Reset UI
+            resultDiv.classList.remove('d-none');
+            resultTitle.textContent = `Searching: "${title}" by ${author}`;
+            resultMessage.textContent = 'Searching online for PDF...';
+            pdfLinks.innerHTML = '';
+            progressBar.style.width = '25%';
+            progressText.textContent = 'Searching...';
+            
+            // Step 1: Search for PDF URL
+            fetch(`/api/books/search-pdf?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        progressBar.style.width = '50%';
+                        progressText.textContent = 'PDF found! Starting download...';
+                        resultMessage.textContent = data.message;
+                        
+                        // Create download link
+                        pdfLinks.innerHTML = `
+                            <div class="d-grid gap-2">
+                                <a href="${data.download_url}" class="btn btn-success" onclick="showDownloadProgress()">
+                                    <i class="fas fa-download"></i> Download PDF Now
+                                </a>
+                                <a href="${data.pdf_url}" target="_blank" class="btn btn-outline-secondary">
+                                    <i class="fas fa-external-link-alt"></i> Open PDF Link
+                                </a>
+                            </div>
+                        `;
+                        
+                        // Auto-start download after 2 seconds
+                        setTimeout(() => {
+                            progressBar.style.width = '75%';
+                            progressText.textContent = 'Preparing download...';
+                            
+                            setTimeout(() => {
+                                window.location.href = data.download_url;
+                                progressBar.style.width = '100%';
+                                progressText.textContent = 'Download started!';
+                            }, 1000);
+                        }, 2000);
+                        
+                    } else {
+                        progressBar.style.width = '100%';
+                        progressBar.classList.remove('bg-primary');
+                        progressBar.classList.add('bg-danger');
+                        progressText.textContent = 'PDF not found';
+                        resultMessage.textContent = data.message;
+                        resultMessage.classList.add('text-danger');
+                    }
+                })
+                .catch(error => {
+                    resultMessage.textContent = `Error: ${error.message}`;
+                    resultMessage.classList.add('text-danger');
+                    progressBar.style.width = '100%';
+                    progressBar.classList.remove('bg-primary');
+                    progressBar.classList.add('bg-danger');
+                    progressText.textContent = 'Search failed';
+                });
+        }
+        
+        function showDownloadProgress() {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Downloading...';
+        }
+        
+        // Auto-focus first input
+        document.getElementById('title').focus();
+    </script>
+</body>
+</html>

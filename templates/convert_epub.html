@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Convert Books to EPUB</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section { margin-bottom: 40px; }
+        h1, h2 { color: #333; }
+        .book-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .book-card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+        .book-title { font-weight: bold; font-size: 1.1em; margin-bottom: 5px; }
+        .book-author { color: #666; margin-bottom: 10px; }
+        .btn { 
+            padding: 8px 16px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            display: inline-block;
+        }
+        .btn:hover { background-color: #45a049; }
+        .btn-delete { background-color: #f44336; }
+        .btn-delete:hover { background-color: #d32f2f; }
+        .btn-batch { background-color: #2196F3; margin-bottom: 20px; }
+        .btn-batch:hover { background-color: #0b7dda; }
+        .stats { background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 EPUB Conversion Center</h1>
+        
+        <div class="stats">
+            <h2>Statistics</h2>
+            <div id="stats-content">Loading...</div>
+        </div>
+        
+        <div class="section">
+            <h2>Convert Multiple Books</h2>
+            <button class="btn btn-batch" onclick="batchConvertAll()">Convert All PDFs to EPUB</button>
+            <div id="batch-result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Books Ready for Conversion (PDFs without EPUB)</h2>
+            <div class="book-list" id="books-to-convert">
+                {% if books_to_convert %}
+                    {% for book in books_to_convert %}
+                    <div class="book-card">
+                        <div class="book-title">{{ book.title }}</div>
+                        <div class="book-author">by {{ book.author }}</div>
+                        <button class="btn" onclick="convertBook( book_id )">Convert to EPUB</button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No books need conversion. All PDFs have EPUB versions!</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Converted EPUB Books</h2>
+            <div class="book-list" id="converted-books">
+                {% if converted_books %}
+                    {% for book in converted_books %}
+                    <div class="book-card">
+                        <div class="book-title">{{ book.title }}</div>
+                        <div class="book-author">by {{ book.author }}</div>
+                        <div class="book-date">Converted: {{ book.conversion_date or 'Unknown' }}</div>
+                        <button class="btn" onclick="downloadEpub( book_id )">Download EPUB</button>
+                        <button class="btn btn-delete" onclick="deleteEpub( book_id )">Delete EPUB</button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No EPUB books yet. Convert some books first!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/epub-stats');
+                const data = await response.json();
+                if (data.status === 'success') {
+                    const stats = data.stats;
+                    const statsContent = document.getElementById('stats-content');
+                    statsContent.innerHTML = 
+                        '<p>Total Books: ' + stats.total_books + '</p>' +
+                        '<p>Books with EPUB: ' + stats.books_with_epub + '</p>' +
+                        '<p>Books with PDF (no EPUB): ' + stats.books_with_pdf_no_epub + '</p>' +
+                        '<p>Conversion Rate: ' + stats.conversion_rate + '</p>' +
+                        '<p>Total EPUB Size: ' + stats.total_epub_size_mb + ' MB</p>';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        async function convertBook(bookId) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'conversion-result';
+            document.getElementById('books-to-convert').appendChild(resultDiv);
+            
+            try {
+                resultDiv.innerHTML = '<p>Converting... ⏳</p>';
+                
+                const response = await fetch('/api/books/' + bookId + '/convert-to-epub', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = '<p class="success">✅ ' + data.message + '</p>';
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    resultDiv.innerHTML = '<p class="error">❌ ' + data.message + '</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">❌ Error: ' + error.message + '</p>';
+            }
+        }
+        
+        async function batchConvertAll() {
+            const resultDiv = document.getElementById('batch-result');
+            resultDiv.innerHTML = '<p>Starting batch conversion... ⏳</p>';
+            
+            try {
+                const response = await fetch('/api/books/batch-convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ book_ids: [] })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = 
+                        '<p class="success">✅ ' + data.message + '</p>' +
+                        '<p>Successful: ' + data.successful + ', Failed: ' + data.failed + '</p>';
+                    
+                    if (data.results && data.results.length > 0) {
+                        const details = document.createElement('div');
+                        details.innerHTML = '<h3>Conversion Details:</h3>';
+                        data.results.forEach(function(result) {
+                            const p = document.createElement('p');
+                            p.textContent = 'Book ' + result.book_id + ': ' + result.status + ' - ' + (result.message || result.title || '');
+                            p.className = result.status === 'success' ? 'success' : 'error';
+                            details.appendChild(p);
+                        });
+                        resultDiv.appendChild(details);
+                    }
+                    
+                    setTimeout(function() {
+                        location.reload();
+                    }, 5000);
+                } else {
+                    resultDiv.innerHTML = '<p class="error">❌ ' + data.message + '</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">❌ Error: ' + error.message + '</p>';
+            }
+        }
+        
+        function downloadEpub(bookId) {
+            window.location.href = '/api/books/' + bookId + '/download-epub';
+        }
+        
+        async function deleteEpub(bookId) {
+            if (confirm('Are you sure you want to delete this EPUB file?')) {
+                try {
+                    const response = await fetch('/api/books/' + bookId + '/delete-epub', {
+                        method: 'DELETE'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        alert('EPUB deleted successfully');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+        
+        loadStats();
+    </script>
+</body>
+</html>

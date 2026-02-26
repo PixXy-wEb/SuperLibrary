@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+
+{% block title %}Add Saga{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_saga.css') }}">
+{% endblock %}
+
+{% block body %}
+<h2>Add a Saga</h2>
+
+<div class="add-container">
+
+  <div class="add-saga-card">
+    <h2 class="selection">Add a New Saga</h2>
+
+    <form method="POST" action="{{ url_for('add_saga') }}">
+
+      <div class="form-group">
+        <label for="title">Saga title</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="Enter saga title"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="author">Author</label>
+        <input
+          type="text"
+          id="author"
+          name="author"
+          placeholder="Enter author name"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          placeholder="Enter description"
+          required
+        >
+      </div>
+
+    <div class="form-group">
+        <label for="num_books">Number of books</label>
+        <input 
+        type="number" 
+        name="num_books" 
+        placeholder="Number of books"
+        required
+        >
+      </div>
+
+      <button type="submit" class="btn-primary">Add Saga</button>
+
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}

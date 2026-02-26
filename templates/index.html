@@ -1,0 +1,266 @@
+{% extends "layout.html" %}
+
+{% block title %}SuperLibrary - Your Digital Book Haven{% endblock %}
+
+{% block body %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Welcome to Your <span class="highlight">Digital Library</span></h1>
+        <p class="hero-subtitle">Discover, organize, and transform your book collection with powerful tools</p>
+        
+        <div class="hero-stats">
+            <div class="stat-card">
+                <i class="fas fa-book stat-icon"></i>
+                <div class="stat-content">
+                    <h3 id="total-books">0</h3>
+                    <p>Total Books</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-file-pdf stat-icon"></i>
+                <div class="stat-content">
+                    <h3 id="pdf-books">0</h3>
+                    <p>With PDFs</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-tablet-alt stat-icon"></i>
+                <div class="stat-content">
+                    <h3 id="epub-books">0</h3>
+                    <p>EPUB Ready</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Access Buttons -->
+        <div class="hero-actions">
+            <a href="{{ url_for('books') }}" class="hero-btn primary-btn">
+                <i class="fas fa-book"></i>
+                Browse All Books
+            </a>
+            <a href="{{ url_for('add_book') }}" class="hero-btn secondary-btn">
+                <i class="fas fa-plus-circle"></i>
+                Add New Book
+            </a>
+            <a href="{{ url_for('view_sagas') }}" class="hero-btn tertiary-btn">
+                <i class="fas fa-layer-group"></i>
+                View Sagas
+            </a>
+        </div>
+    </div>
+    
+    <div class="hero-illustration">
+        <div class="book-stack">
+            <div class="book book-1"></div>
+            <div class="book book-2"></div>
+            <div class="book book-3"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions -->
+<section class="quick-actions-section">
+    <h2 class="section-title">
+        <i class="fas fa-bolt"></i>
+        Quick Actions
+    </h2>
+    
+    <div class="quick-actions-grid">
+        <a href="{{ url_for('add_book') }}" class="quick-action-card add-book">
+            <div class="action-icon">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <h3>Add New Book</h3>
+            <p>Add a book to your collection</p>
+            <div class="action-arrow">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+        </a>
+        
+        <a href="{{ url_for('add_saga') }}" class="quick-action-card add-saga">
+            <div class="action-icon">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <h3>Create Saga</h3>
+            <p>Organize books into series</p>
+            <div class="action-arrow">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+        </a>
+        
+        <a href="/find-pdfs" class="quick-action-card find-pdfs">
+            <div class="action-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3>Find PDFs</h3>
+            <p>Search for book PDFs</p>
+            <div class="action-arrow">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+        </a>
+        
+        <a href="/convert-epub" class="quick-action-card convert-epubs">
+            <div class="action-icon">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <h3>Convert EPUBs</h3>
+            <p>Convert PDFs to EPUB</p>
+            <div class="action-arrow">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- Tools Section -->
+<section class="tools-section">
+    <h2 class="section-title">
+        <i class="fas fa-tools"></i>
+        Book Management Tools
+    </h2>
+    
+    <div class="tools-grid">
+        <!-- PDF Tools -->
+        <div class="tool-card pdf-tools">
+            <div class="tool-header">
+                <div class="tool-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h3>PDF Management</h3>
+                <p class="tool-subtitle">Find, upload, and manage PDF books</p>
+            </div>
+            
+            <div class="tool-actions">
+                <a href="/find-pdfs" class="tool-btn primary-btn">
+                    <i class="fas fa-search"></i>
+                    Find PDFs
+                </a>
+                <a href="/upload-pdf" class="tool-btn secondary-btn">
+                    <i class="fas fa-upload"></i>
+                    Upload PDF
+                </a>
+            </div>
+            
+            <div class="tool-features">
+                <span class="feature">
+                    <i class="fas fa-search"></i>
+                    Smart Search
+                </span>
+                <span class="feature">
+                    <i class="fas fa-download"></i>
+                    Auto-Download
+                </span>
+                <span class="feature">
+                    <i class="fas fa-folder"></i>
+                    Organize
+                </span>
+            </div>
+        </div>
+        
+        <!-- EPUB Tools -->
+        <div class="tool-card epub-tools">
+            <div class="tool-header">
+                <div class="tool-icon">
+                    <i class="fas fa-tablet-alt"></i>
+                </div>
+                <h3>EPUB Conversion</h3>
+                <p class="tool-subtitle">Convert PDFs to EPUB format</p>
+            </div>
+            
+            <div class="tool-actions">
+                <a href="/convert-epub" class="tool-btn primary-btn">
+                    <i class="fas fa-sync-alt"></i>
+                    Convert EPUBs
+                </a>
+                <a href="/epub-library" class="tool-btn secondary-btn">
+                    <i class="fas fa-book-reader"></i>
+                    EPUB Library
+                </a>
+                <a href="/upload-epub" class="tool-btn tertiary-btn">
+                    <i class="fas fa-file-upload"></i>
+                    Upload & Convert
+                </a>
+            </div>
+            
+            <div class="tool-features">
+                <span class="feature">
+                    <i class="fas fa-mobile-alt"></i>
+                    Mobile Ready
+                </span>
+                <span class="feature">
+                    <i class="fas fa-bolt"></i>
+                    Fast Conversion
+                </span>
+                <span class="feature">
+                    <i class="fas fa-heart"></i>
+                    Reader Friendly
+                </span>
+            </div>
+        </div>
+        
+        <!-- Advanced Features -->
+        <div class="tool-card advanced-tools">
+            <div class="tool-header">
+                <div class="tool-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h3>Advanced Features</h3>
+                <p class="tool-subtitle">Powerful tools for book lovers</p>
+            </div>
+            
+            <div class="advanced-actions">
+                <a href="/chatbot" class="advanced-btn">
+                    <i class="fas fa-robot"></i>
+                    BookBot AI Assistant
+                </a>
+                <a href="{{ url_for('books') }}" class="advanced-btn">
+                    <i class="fas fa-list"></i>
+                    Browse All Books
+                </a>
+                <a href="{{ url_for('view_sagas') }}" class="advanced-btn">
+                    <i class="fas fa-project-diagram"></i>
+                    Explore Sagas
+                </a>
+                <a href="/search-pdf" class="advanced-btn">
+                    <i class="fas fa-file-download"></i>
+                    Advanced PDF Search
+                </a>
+            </div>
+            
+            <div class="tool-features">
+                <span class="feature">
+                    <i class="fas fa-brain"></i>
+                    AI Powered
+                </span>
+                <span class="feature">
+                    <i class="fas fa-rocket"></i>
+                    Fast & Efficient
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Floating Action Buttons -->
+<div class="floating-actions">
+    <a href="/find-pdfs" class="floating-btn pdf-floating-btn" title="Find PDFs">
+        <i class="fas fa-search"></i>
+        <span class="floating-text">Find PDFs</span>
+    </a>
+    
+    <a href="/convert-epub" class="floating-btn epub-floating-btn" title="Convert EPUBs">
+        <i class="fas fa-sync-alt"></i>
+        <span class="floating-text">Convert EPUBs</span>
+    </a>
+    
+    <a href="/chatbot" class="floating-btn chatbot-floating-btn" title="Chat with BookBot">
+        <i class="fas fa-robot"></i>
+        <span class="floating-text">BookBot AI</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}
